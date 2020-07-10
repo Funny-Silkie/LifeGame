@@ -34,9 +34,11 @@ namespace LifeGame
         {
             if (nextLife.HasValue) IsAlive = nextLife.Value;
         }
-        public void CheckCount()
+        public bool CheckCount()
         {
-            nextLife = MainScene.LiveDeadTable[new Entry(CountLives(), IsAlive)];
+            var result = MainScene.LiveDeadTable[new Entry(CountLives(), IsAlive)];
+            nextLife = result;
+            return result;
         }
         private int CountLives()
         {

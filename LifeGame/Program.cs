@@ -6,10 +6,17 @@ namespace LifeGame
     {
         static void Main(string[] args)
         {
-            if (!Engine.Initialize("Life Game", 960, 720)) return;
+            if (!Engine.Initialize("Life Game", 1260, 720, new Configuration()
+            {
+                ToolEnabled = true
+            })) return;
             Engine.ClearColor = default;
             Engine.AddNode(new MainScene());
-            while (Engine.DoEvents()) Engine.Update();
+            while (Engine.DoEvents())
+            {
+                ToolHelper.Update();
+                Engine.Update();
+            }
             Engine.Terminate();
         }
     }
