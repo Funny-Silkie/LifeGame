@@ -5,26 +5,19 @@ namespace LifeGame
 {
     class MainScene : Node
     {
-        public static Dictionary<Entry, bool> Result { get; } = new Dictionary<Entry, bool>(18)
+        private int count;
+        private bool stopped;
+        public static Dictionary<Entry, bool> LiveDeadTable { get; } = new Dictionary<Entry, bool>(18)
         {
-            { new Entry(0, false), false },
-            { new Entry(0, true), false },
-            { new Entry(1, false), false },
-            { new Entry(1, true), false },
-            { new Entry(2, false), false },
-            { new Entry(2, true), false },
-            { new Entry(3, false), false },
-            { new Entry(3, true), true },
-            { new Entry(4, false), true },
-            { new Entry(4, true), true },
-            { new Entry(5, false), true },
-            { new Entry(5, true), true },
-            { new Entry(6, false), false },
-            { new Entry(6, true), false },
-            { new Entry(7, false), true },
-            { new Entry(7, true), false },
-            { new Entry(8, false), true },
-            { new Entry(8, true), false },
+            { new Entry(0, false), false }, { new Entry(0, true), false },
+            { new Entry(1, false), false }, { new Entry(1, true), false },
+            { new Entry(2, false), false }, { new Entry(2, true), true },
+            { new Entry(3, false), true }, { new Entry(3, true), true },
+            { new Entry(4, false), false }, { new Entry(4, true), false },
+            { new Entry(5, false), false }, { new Entry(5, true), false },
+            { new Entry(6, false), false }, { new Entry(6, true), false },
+            { new Entry(7, false), false }, { new Entry(7, true), false },
+            { new Entry(8, false), false }, { new Entry(8, true), false },
         };
         private static readonly Vector2I Size = new Vector2I(32, 24);
         public Dictionary<Vector2I, Block> Blocks { get; } = new Dictionary<Vector2I, Block>(Size.X * Size.Y);
@@ -38,6 +31,15 @@ namespace LifeGame
                     Blocks.Add(location, block);
                     AddChildNode(block);
                 }
+        }
+        protected override void OnUpdate()
+        {
+            if (Engine.Keyboard.GetKeyState(Keys.S) == ButtonState.Push) stopped = !stopped;
+            if (!stopped && count++ % 10 == 0)
+            {
+                foreach (var pair in Blocks) pair.Value.CheckCount();
+                foreach (var pair in Blocks) pair.Value.ChangeAlive();
+            }
         }
     }
 }
