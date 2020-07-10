@@ -5698,7 +5698,6 @@
             <param name="min">左上の座標</param>
             <param name="max">右下の座標</param>
             <param name="positions">計算する座標</param>
-            <exception cref="T:System.ArgumentException"><paramref name="positions"/>が空</exception>
             <exception cref="T:System.ArgumentNullException"><paramref name="positions"/>がnull</exception>
         </member>
         <member name="M:Altseed2.MathHelper.GetMinMax(Altseed2.Vector2F@,Altseed2.Vector2F@,Altseed2.IArray{Altseed2.Vector2F})">
@@ -5708,7 +5707,6 @@
             <param name="min">左上の座標</param>
             <param name="max">右下の座標</param>
             <param name="positions">計算する座標</param>
-            <exception cref="T:System.ArgumentException"><paramref name="positions"/>が空</exception>
             <exception cref="T:System.ArgumentNullException"><paramref name="positions"/>がnull</exception>
         </member>
         <member name="M:Altseed2.MathHelper.GetMinMax(Altseed2.Vector2F@,Altseed2.Vector2F@,Altseed2.Vector2F[])">
@@ -5718,8 +5716,16 @@
             <param name="min">左上の座標</param>
             <param name="max">右下の座標</param>
             <param name="positions">計算する座標</param>
-            <exception cref="T:System.ArgumentException"><paramref name="positions"/>が空</exception>
             <exception cref="T:System.ArgumentNullException"><paramref name="positions"/>がnull</exception>
+        </member>
+        <member name="M:Altseed2.MathHelper.CalcFromTransform(Altseed2.Matrix44F,Altseed2.Vector2F@,Altseed2.Vector2F@,System.Single@)">
+            <summary>
+            <see cref="T:Altseed2.Matrix44F"/>から2次元座標，拡大率，角度を算出する
+            </summary>
+            <param name="transform">計算元となる4x4行列</param>
+            <param name="absolutePosition">出力される座標</param>
+            <param name="scale">出力される拡大率</param>
+            <param name="angle">出力される角度</param>
         </member>
         <member name="T:Altseed2.Matrix33F">
             <summary>
@@ -8110,34 +8116,39 @@
             トランジションを行うコルーチン
             </summary>
         </member>
-        <member name="T:Altseed2.ColliderNode">
-            <summary>
-            コライダを管理するノード
-            </summary>
-        </member>
-        <member name="P:Altseed2.ColliderNode.Collider">
-            <summary>
-            コライダを取得する
-            </summary>
-        </member>
-        <member name="P:Altseed2.ColliderNode.Position">
-            <summary>
-            座標を取得または設定する
-            </summary>
-        </member>
-        <member name="P:Altseed2.ColliderNode.Rotation">
-            <summary>
-            コライダの回転情報を取得または設定する
-            </summary>
-        </member>
-        <member name="M:Altseed2.ColliderNode.#ctor">
-            <summary>
-            <see cref="T:Altseed2.ColliderNode"/>の新しいインスタンスを生成する
-            </summary>
-        </member>
         <member name="T:Altseed2.CircleColliderNode">
             <summary>
             円形コライダを管理するノード
+            </summary>
+        </member>
+        <member name="T:Altseed2.CircleColliderNode.ScaleCalcType">
+            <summary>
+            拡大率を適用する方法を表す
+            </summary>
+        </member>
+        <member name="F:Altseed2.CircleColliderNode.ScaleCalcType.X">
+            <summary>
+            Scale.Xで計算する
+            </summary>
+        </member>
+        <member name="F:Altseed2.CircleColliderNode.ScaleCalcType.Y">
+            <summary>
+            Scale.Yで計算する
+            </summary>
+        </member>
+        <member name="F:Altseed2.CircleColliderNode.ScaleCalcType.Length">
+            <summary>
+            Scale.Lengthで計算する
+            </summary>
+        </member>
+        <member name="F:Altseed2.CircleColliderNode.ScaleCalcType.Min">
+            <summary>
+            X，Yの最小値で計算する
+            </summary>
+        </member>
+        <member name="F:Altseed2.CircleColliderNode.ScaleCalcType.Max">
+            <summary>
+            X，Yの最大値で計算する
             </summary>
         </member>
         <member name="P:Altseed2.CircleColliderNode.CircleCollider">
@@ -8150,6 +8161,12 @@
             衝突半径を取得または設定する
             </summary>
         </member>
+        <member name="P:Altseed2.CircleColliderNode.ScaleType">
+            <summary>
+            拡大率の計算方法を取得または設定します。
+            </summary>
+            <remarks>既定値：<see cref="F:Altseed2.CircleColliderNode.ScaleCalcType.Max"/></remarks>
+        </member>
         <member name="M:Altseed2.CircleColliderNode.#ctor">
             <summary>
             既定の<see cref="T:Altseed2.CircleCollider"/>を使用して<see cref="T:Altseed2.CircleColliderNode"/>の新しいインスタンスを生成する
@@ -8161,6 +8178,84 @@
             </summary>
             <param name="collider">使用する<see cref="T:Altseed2.CircleCollider"/>のインスタンス</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="collider"/>がnull</exception>
+        </member>
+        <member name="T:Altseed2.ColliderNode">
+            <summary>
+            コライダを管理するノード
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderNode.Collider">
+            <summary>
+            コライダを取得する
+            </summary>
+        </member>
+        <member name="M:Altseed2.ColliderNode.#ctor">
+            <summary>
+            <see cref="T:Altseed2.ColliderNode"/>の新しいインスタンスを生成する
+            </summary>
+        </member>
+        <member name="M:Altseed2.ColliderNode.CreateVisualizeNode(Altseed2.ColliderNode)">
+            <summary>
+            指定した<see cref="T:Altseed2.ColliderNode"/>の当たり判定領域を表示するノードを生成する
+            </summary>
+            <param name="colliderNode">使用するコライダノード</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="colliderNode"/>がnull</exception>
+            <returns><paramref name="colliderNode"/>の当たり当たり領域を表示するノード</returns>
+        </member>
+        <member name="T:Altseed2.ColliderVisualizeNode">
+            <summary>
+            <see cref="T:Altseed2.ColliderNode"/>の当たり判定範囲として描画されるノードの基底クラス
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.AnchorMax">
+            <summary>
+            アンカーを取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.AnchorMin">
+            <summary>
+            アンカーを取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.Angle">
+            <summary>
+            角度(度数法)を取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.CenterPosition">
+            <summary>
+            回転の中心となる座標をピクセル単位で取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.HorizontalFlip">
+            <summary>
+            左右を反転するかどうかを取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.Pivot">
+            <summary>
+            回転の中心となる座標を[0,1]で取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.Position">
+            <summary>
+            座標を取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.Scale">
+            <summary>
+            拡大率を取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.Size">
+            <summary>
+            コンテンツのサイズを取得します。
+            </summary>
+        </member>
+        <member name="P:Altseed2.ColliderVisualizeNode.VerticalFlip">
+            <summary>
+            上下を反転するかどうかを取得します。
+            </summary>
         </member>
         <member name="T:Altseed2.PolygonColliderNode">
             <summary>
@@ -8177,6 +8272,11 @@
             頂点情報の配列を取得または設定する
             </summary>
             <exception cref="T:System.ArgumentNullException">設定しようとした値がnull</exception>
+        </member>
+        <member name="P:Altseed2.PolygonColliderNode.Size">
+            <summary>
+            コンテンツのサイズを取得します。
+            </summary>
         </member>
         <member name="M:Altseed2.PolygonColliderNode.#ctor">
             <summary>
@@ -8195,19 +8295,9 @@
             短形コライダを管理するノード
             </summary>
         </member>
-        <member name="P:Altseed2.RectangleColliderNode.CenterPosition">
-            <summary>
-            中心座標を取得または設定する
-            </summary>
-        </member>
         <member name="P:Altseed2.RectangleColliderNode.RectangleCollider">
             <summary>
             使用するコライダを取得する
-            </summary>
-        </member>
-        <member name="P:Altseed2.RectangleColliderNode.Size">
-            <summary>
-            サイズを取得または設定する
             </summary>
         </member>
         <member name="M:Altseed2.RectangleColliderNode.#ctor">
