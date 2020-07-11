@@ -5,6 +5,8 @@ namespace LifeGame
 {
     static class DataBase
     {
+        private static readonly MainScene mainScene;
+        private static readonly GraphNode graph;
         public static LinkedList<int> Data { get; } = new LinkedList<int>();
         public static Dictionary<Entry, bool> LiveDeadTable { get; } = new Dictionary<Entry, bool>(18, new EntryComparer())
         {
@@ -18,8 +20,12 @@ namespace LifeGame
             { new Entry(7, false), false }, { new Entry(7, true), false },
             { new Entry(8, false), false }, { new Entry(8, true), false },
         };
-        private static readonly MainScene mainScene = new MainScene();
-        private static readonly GraphNode graph = new GraphNode();
+        public static Vector2I Size { get; } = new Vector2I(32, 24);
+        static DataBase()
+        {
+            mainScene = new MainScene();
+            graph = new GraphNode();
+        }
         public static void Initialize()
         {
             Engine.AddNode(mainScene);

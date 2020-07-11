@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using static LifeGame.DataBase;
 
 namespace LifeGame
 {
@@ -12,12 +11,11 @@ namespace LifeGame
         private int count;
         private bool stopped;
         private int updateSpan = 10;
-        private static readonly Vector2I Size = new Vector2I(32, 24);
-        public Dictionary<Vector2I, Block> Blocks { get; } = new Dictionary<Vector2I, Block>(Size.X * Size.Y);
+        public Dictionary<Vector2I, Block> Blocks { get; } = new Dictionary<Vector2I, Block>(DataBase.Size.X * DataBase.Size.Y);
         public MainScene()
         {
-            for (int x = 0; x < Size.X; x++)
-                for (int y = 0; y < Size.Y; y++)
+            for (int x = 0; x < DataBase.Size.X; x++)
+                for (int y = 0; y < DataBase.Size.Y; y++)
                 {
                     var location = new Vector2I(x, y);
                     var block = new Block(location, this);
@@ -46,7 +44,7 @@ namespace LifeGame
                 }
                 foreach (var pair in Blocks) pair.Value.ChangeAlive();
                 tool_Count.Message = $"Lives : {liveCount}";
-                Data.AddLast(liveCount);
+                DataBase.Data.AddLast(liveCount);
             }
         }
         #region Tool
@@ -67,7 +65,7 @@ namespace LifeGame
             var tool_Clear = new Button("Clear");
             tool_Clear.Clicked += new EventHandler(Tool_Clear);
             ToolHelper.AddComponent(tool_Clear);
-            var tool_ChangeState = new Button("Stop");
+            var tool_ChangeState = new Button(stopped ? "Resume" : "Stop");
             tool_ChangeState.Clicked += new EventHandler(Tool_ChangeState);
             ToolHelper.AddComponent(tool_ChangeState);
             tool_Count = new Text("Lives : 0");
@@ -78,7 +76,7 @@ namespace LifeGame
             tool_Export.Clicked += new EventHandler(Tool_Export);
             ToolHelper.AddComponent(tool_Export);
             var tool_ToGraph = new Button("Show Graph");
-            tool_ToGraph.Clicked += (x, y) => ToGraph();
+            tool_ToGraph.Clicked += (x, y) => DataBase.ToGraph();
             ToolHelper.AddComponent(tool_ToGraph);
         }
         private void Register(bool selfAlive)
@@ -86,8 +84,8 @@ namespace LifeGame
             for (int i = 0; i <= 8; i++)
             {
                 var value = i;
-                var check = new CheckBox($"{value}-{(selfAlive ? "Alive" : "Dead")}", LiveDeadTable[new Entry(value, selfAlive)]);
-                check.ChangeChecked += (x, y) => LiveDeadTable[new Entry(value, selfAlive)] = y.NewValue;
+                var check = new CheckBox($"{value}-{(selfAlive ? "Alive" : "Dead")}", DataBase.LiveDeadTable[new Entry(value, selfAlive)]);
+                check.ChangeChecked += (x, y) => DataBase.LiveDeadTable[new Entry(value, selfAlive)] = y.NewValue;
                 ToolHelper.AddComponent(check);
             }
         }
@@ -95,7 +93,7 @@ namespace LifeGame
         {
             count = 1;
             foreach (var pair in Blocks) pair.Value.IsAlive = false;
-            Data.Clear();
+            DataBase.Data.Clear();
         }
         private void Tool_ChangeUpdateSpan(object sender, ToolValueEventArgs<int> e)
         {
@@ -110,7 +108,7 @@ namespace LifeGame
         {
             var builder = new StringBuilder();
             var head = true;
-            foreach (var current in Data)
+            foreach (var current in DataBase.Data)
             {
                 if (!head) builder.Append(',');
                 builder.Append(current);
@@ -118,47 +116,6 @@ namespace LifeGame
             }
             using var writer = new StreamWriter("Data.txt", false);
             writer.Write(builder.ToString());
-        }
-        #endregion
-    }
-    class GraphNode : Node
-    {
-        private Node sceneNode;
-        protected override void OnAdded()
-        {
-            InitTool();
-            AddChildNode(new LineNode()
-            {
-                Point1 = new Vector2F(100, 120),
-                Point2 = new Vector2F(100, 620),
-                Thickness = 5f
-            });
-            AddChildNode(new LineNode()
-            {
-                Point1 = new Vector2F(100, 620),
-                Point2 = new Vector2F(850, 620),
-                Thickness = 5f
-            });
-            sceneNode = new Node();
-
-            AddChildNode(sceneNode);
-        }
-        protected override void OnRemoved()
-        {
-            ToolHelper.ClearComponents();
-            RemoveChildNode(sceneNode);
-            sceneNode = null;
-        }
-        #region Tool
-        private void InitTool()
-        {
-            ToolHelper.Position = new Vector2F(960, 0);
-            ToolHelper.Size = new Vector2I(300, 720);
-            ToolHelper.Name = "Settings";
-            ToolHelper.WindowFlags = ToolWindow.NoCollapse | ToolWindow.NoMove | ToolWindow.NoResize;
-            var tool_ToMain = new Button("Back");
-            tool_ToMain.Clicked += (x, y) => ToMain();
-            ToolHelper.AddComponent(tool_ToMain);
         }
         #endregion
     }
