@@ -11,7 +11,7 @@ namespace LifeGame
                 ToolEnabled = true
             })) return;
             Engine.ClearColor = default;
-            Engine.AddNode(new MainScene());
+            DataBase.Initialize();
             while (Engine.DoEvents())
             {
                 ToolHelper.Update();

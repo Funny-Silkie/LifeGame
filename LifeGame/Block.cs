@@ -36,7 +36,7 @@ namespace LifeGame
         }
         public bool CheckCount()
         {
-            var result = MainScene.LiveDeadTable[new Entry(CountLives(), IsAlive)];
+            var result = DataBase.LiveDeadTable[new Entry(CountLives(), IsAlive)];
             nextLife = result;
             return result;
         }
