@@ -353,6 +353,4 @@ MigrationBackup /
 
 .vs
 */obj
-*/bin
-*.png
-*.otf
+Build/

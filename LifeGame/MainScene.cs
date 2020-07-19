@@ -1,4 +1,5 @@
 ﻿using Altseed2;
+using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
 using System.IO;

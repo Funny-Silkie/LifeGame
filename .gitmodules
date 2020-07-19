@@ -1,0 +1,3 @@
+[submodule "Altseed2-Tool"]
+	path = Altseed2_ToolAuxiliary
+	url = https://github.com/Funny-Silkie/Altseed2_ToolAuxiliary.git
