@@ -14,6 +14,7 @@ namespace LifeGame
             InitTool();
             AddChildNode(new LineNode()
             {
+                Position = new Vector2F(100, 120),
                 Point1 = new Vector2F(100, 120),
                 Point2 = new Vector2F(100, 620),
                 Thickness = 5f,
@@ -21,6 +22,7 @@ namespace LifeGame
             });
             AddChildNode(new LineNode()
             {
+                Position = new Vector2F(100, 620),
                 Point1 = new Vector2F(100, 620),
                 Point2 = new Vector2F(850, 620),
                 Thickness = 5f,
@@ -75,15 +77,21 @@ namespace LifeGame
                 var interval = 750f / data.Count;
                 var i = 0;
                 foreach (var current in data) positions[i++] = new Vector2F(100 + interval * i, 620f - current * 500f / cellCount);
-                for (i = 1; i < data.Count; i++) registeredNode.AddChildNode(new LineNode()
+                for (i = 1; i < data.Count; i++)
                 {
-                    Color = color,
-                    Point1 = positions[i - 1],
-                    Point2 = positions[i],
-                    Thickness = 2f
-                });
+                    var node = new LineNode()
+                    {
+                        Color = color,
+                        Position = GetSmallPos(positions[i - 1], positions[i]),
+                        Point1 = positions[i - 1],
+                        Point2 = positions[i],
+                        Thickness = 2f
+                    };
+                    registeredNode.AddChildNode(node);
+                }
             }
         }
+        static Vector2F GetSmallPos(Vector2F left, Vector2F right) => new Vector2F(MathF.Min(left.X, right.X), MathF.Min(left.Y, right.Y));
         #region Tool
         private void InitTool()
         {
