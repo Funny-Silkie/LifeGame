@@ -71,8 +71,7 @@ namespace LifeGame
             ToolHelper.AddComponent(tool_ChangeState);
             tool_Count = new Text("Lives : 0");
             ToolHelper.AddComponent(tool_Count);
-            Register(false);
-            Register(true);
+            Register();
             var tool_Export = new Button("Export");
             tool_Export.Clicked += new EventHandler(Tool_Export);
             ToolHelper.AddComponent(tool_Export);
@@ -80,14 +79,19 @@ namespace LifeGame
             tool_ToGraph.Clicked += (x, y) => DataBase.ToGraph();
             ToolHelper.AddComponent(tool_ToGraph);
         }
-        private void Register(bool selfAlive)
+        private void Register()
         {
             for (int i = 0; i <= 8; i++)
             {
                 var value = i;
-                var check = new CheckBox($"{value}-{(selfAlive ? "Alive" : "Dead")}", DataBase.LiveDeadTable[new Entry(value, selfAlive)]);
-                check.ChangeChecked += (x, y) => DataBase.LiveDeadTable[new Entry(value, selfAlive)] = y.NewValue;
-                ToolHelper.AddComponent(check);
+                var check_Alive = new CheckBox($"{value}-Alive", DataBase.LiveDeadTable[new Entry(value, true)]);
+                var check_Dead = new CheckBox($"{value}-Dead", DataBase.LiveDeadTable[new Entry(value, false)]);
+                check_Alive.ChangeChecked += (x, y) => DataBase.LiveDeadTable[new Entry(value, true)] = y.NewValue;
+                check_Dead.ChangeChecked += (x, y) => DataBase.LiveDeadTable[new Entry(value, false)] = y.NewValue;
+                var line = new Line();
+                line.AddComponent(check_Alive);
+                line.AddComponent(check_Dead);
+                ToolHelper.AddComponent(line);
             }
         }
         private void Tool_Clear(object sender, EventArgs e)
