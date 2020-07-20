@@ -2,7 +2,8 @@
 
 namespace LifeGame
 {
-    readonly struct Entry : IEquatable<Entry>
+    [Serializable]
+    public readonly struct Entry : IEquatable<Entry>
     {
         public int LifeCount { get; }
         public bool SelfAlive { get; }

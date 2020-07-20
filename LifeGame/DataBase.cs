@@ -1,5 +1,7 @@
 ﻿using Altseed2;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace LifeGame
 {
@@ -39,6 +41,21 @@ namespace LifeGame
         {
             Engine.RemoveNode(graph);
             Engine.AddNode(mainScene);
+        }
+        public static void Serialize(Dictionary<Vector2I, Block> blocks, string path)
+        {
+            var data = new LifeGameData(blocks);
+            var formatter = new BinaryFormatter();
+            using var stream = new FileStream(path, FileMode.Create);
+            formatter.Serialize(stream, data);
+        }
+        public static Dictionary<Vector2I, bool> Deserialize(string path)
+        {
+            var formatter = new BinaryFormatter();
+            using var stream = new FileStream(path, FileMode.Open);
+            var data = (LifeGameData)formatter.Deserialize(stream);
+            foreach (var pair in data.Table) LiveDeadTable[pair.Key] = pair.Value;
+            return data.AliveData;
         }
     }
 }

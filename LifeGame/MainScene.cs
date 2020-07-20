@@ -51,8 +51,12 @@ namespace LifeGame
             }
         }
         #region Tool
+        private Button tool_ChangeState;
         private Text tool_LifeCount;
         private Text tool_TimeCount;
+        private Text tool_load_Error;
+        private Text tool_save_Error;
+        private Dictionary<Entry, CheckBox> buttons;
         private void InitTool()
         {
             ToolHelper.Position = new Vector2F(960, 0);
@@ -69,7 +73,7 @@ namespace LifeGame
             var tool_Clear = new Button("Clear");
             tool_Clear.Clicked += new EventHandler(Tool_Clear);
             ToolHelper.AddComponent(tool_Clear);
-            var tool_ChangeState = new Button(stopped ? (count == 0 ? "Run" :"Resume") : "Stop");
+            tool_ChangeState = new Button(stopped ? (count == 0 ? "Run" :"Resume") : "Stop");
             tool_ChangeState.Clicked += new EventHandler(Tool_ChangeState);
             ToolHelper.AddComponent(tool_ChangeState);
             tool_LifeCount = new Text($"Lives : {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}");
@@ -91,9 +95,18 @@ namespace LifeGame
             ToolHelper.AddComponent(tree);
             var tool_LoadBinary = new Button("Load Binary");
             tool_LoadBinary.Clicked += new EventHandler(Tool_LoadBinary);
+            tree.AddComponent(tool_LoadBinary);
+            tool_load_Error = new Text() { IsUpdated = false };
+            tree.AddComponent(tool_load_Error);
+            var tool_SaveBinary = new Button("Save Binary");
+            tool_SaveBinary.Clicked += new EventHandler(Tool_SaveBinary);
+            tree.AddComponent(tool_SaveBinary);
+            tool_save_Error = new Text() { IsUpdated = false };
+            tree.AddComponent(tool_save_Error);
         }
         private void Register()
         {
+            buttons = new Dictionary<Entry, CheckBox>(18);
             var tree = new TreeNode("Dead-Alive setting");
             ToolHelper.AddComponent(tree);
             for (int i = 0; i <= 8; i++)
@@ -106,6 +119,8 @@ namespace LifeGame
                 var line = new Line();
                 line.AddComponent(check_Alive);
                 line.AddComponent(check_Dead);
+                buttons.Add(new Entry(i, true), check_Alive);
+                buttons.Add(new Entry(i, false), check_Dead);
                 tree.AddComponent(line);
             }
         }
@@ -114,6 +129,9 @@ namespace LifeGame
             count = 0;
             foreach (var pair in Blocks) pair.Value.IsAlive = false;
             DataBase.Data.Clear();
+            if (stopped) tool_ChangeState.Label = "Run";
+            tool_LifeCount.Message = $"Lives: {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}";
+            tool_TimeCount.Message = $"Time : 0";
         }
         private void Tool_ChangeUpdateSpan(object sender, ToolValueEventArgs<int> e)
         {
@@ -126,7 +144,35 @@ namespace LifeGame
         }
         private void Tool_LoadBinary(object sender, EventArgs e)
         {
-
+            var dialog = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Filter = "lb",
+                InitialDirectory = Environment.CurrentDirectory
+            };
+            var result = dialog.ShowDialog(out var log);
+            tool_load_Error.IsUpdated = !result;
+            tool_load_Error.Message = log;
+            if (!result) return;
+            var blocks = DataBase.Deserialize(dialog.FileName);
+            Tool_Clear(this, e);
+            foreach (var pair in blocks) Blocks[pair.Key].IsAlive = pair.Value;
+            foreach (var pair in DataBase.LiveDeadTable) buttons[pair.Key].Checked = pair.Value;
+        }
+        private void Tool_SaveBinary(object sender, EventArgs e)
+        {
+            var dialog = new SaveFileDialog()
+            {
+                CheckPathExists = true,
+                Filter = "lb",
+                InitialDirectory = Environment.CurrentDirectory
+            };
+            var result = dialog.ShowDialog(out var log);
+            tool_save_Error.IsUpdated = !result;
+            tool_save_Error.Message = log;
+            if (!result) return;
+            DataBase.Serialize(Blocks, dialog.FileName);
         }
         private void Tool_Export(object sender, EventArgs e)
         {
@@ -143,5 +189,4 @@ namespace LifeGame
         }
         #endregion
     }
-
 }
