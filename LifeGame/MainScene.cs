@@ -3,6 +3,7 @@ using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace LifeGame
@@ -10,8 +11,8 @@ namespace LifeGame
     class MainScene : Node
     {
         private int count;
-        private bool stopped;
-        private int updateSpan = 10;
+        private bool stopped = true;
+        private int updateSpan = 5;
         public Dictionary<Vector2I, Block> Blocks { get; } = new Dictionary<Vector2I, Block>(DataBase.Size.X * DataBase.Size.Y);
         public MainScene()
         {
@@ -35,7 +36,7 @@ namespace LifeGame
         protected override void OnUpdate()
         {
             var liveCount = 0;
-            if (!stopped && count++ % updateSpan == 0)
+            if (!stopped && count++ != 0 && count % updateSpan == 0)
             {
                 foreach (var pair in Blocks)
                 {
@@ -44,12 +45,14 @@ namespace LifeGame
                     if (block.IsAlive) liveCount++;
                 }
                 foreach (var pair in Blocks) pair.Value.ChangeAlive();
-                tool_Count.Message = $"Lives : {liveCount}";
+                tool_LifeCount.Message = $"Lives : {liveCount}";
+                tool_TimeCount.Message = $"Time : {(uint)(count / updateSpan)}";
                 DataBase.Data.AddLast(liveCount);
             }
         }
         #region Tool
-        private Text tool_Count;
+        private Text tool_LifeCount;
+        private Text tool_TimeCount;
         private void InitTool()
         {
             ToolHelper.Position = new Vector2F(960, 0);
@@ -66,21 +69,33 @@ namespace LifeGame
             var tool_Clear = new Button("Clear");
             tool_Clear.Clicked += new EventHandler(Tool_Clear);
             ToolHelper.AddComponent(tool_Clear);
-            var tool_ChangeState = new Button(stopped ? "Resume" : "Stop");
+            var tool_ChangeState = new Button(stopped ? (count == 0 ? "Run" :"Resume") : "Stop");
             tool_ChangeState.Clicked += new EventHandler(Tool_ChangeState);
             ToolHelper.AddComponent(tool_ChangeState);
-            tool_Count = new Text("Lives : 0");
-            ToolHelper.AddComponent(tool_Count);
+            tool_LifeCount = new Text($"Lives : {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}");
+            ToolHelper.AddComponent(tool_LifeCount);
+            tool_TimeCount = new Text($"Time : {(uint)(count / updateSpan)}");
+            ToolHelper.AddComponent(tool_TimeCount);
             Register();
-            var tool_Export = new Button("Export");
+            IOBinary();
+            var tool_Export = new Button("Export as csv");
             tool_Export.Clicked += new EventHandler(Tool_Export);
             ToolHelper.AddComponent(tool_Export);
             var tool_ToGraph = new Button("Show Graph");
             tool_ToGraph.Clicked += (x, y) => DataBase.ToGraph();
             ToolHelper.AddComponent(tool_ToGraph);
         }
+        private void IOBinary()
+        {
+            var tree = new TreeNode("I/O");
+            ToolHelper.AddComponent(tree);
+            var tool_LoadBinary = new Button("Load Binary");
+            tool_LoadBinary.Clicked += new EventHandler(Tool_LoadBinary);
+        }
         private void Register()
         {
+            var tree = new TreeNode("Dead-Alive setting");
+            ToolHelper.AddComponent(tree);
             for (int i = 0; i <= 8; i++)
             {
                 var value = i;
@@ -91,12 +106,12 @@ namespace LifeGame
                 var line = new Line();
                 line.AddComponent(check_Alive);
                 line.AddComponent(check_Dead);
-                ToolHelper.AddComponent(line);
+                tree.AddComponent(line);
             }
         }
         private void Tool_Clear(object sender, EventArgs e)
         {
-            count = 1;
+            count = 0;
             foreach (var pair in Blocks) pair.Value.IsAlive = false;
             DataBase.Data.Clear();
         }
@@ -108,6 +123,10 @@ namespace LifeGame
         {
             stopped = !stopped;
             ((Button)sender).Label = stopped ? "Resume" : "Stop";
+        }
+        private void Tool_LoadBinary(object sender, EventArgs e)
+        {
+
         }
         private void Tool_Export(object sender, EventArgs e)
         {
@@ -124,4 +143,5 @@ namespace LifeGame
         }
         #endregion
     }
+
 }
