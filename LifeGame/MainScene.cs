@@ -46,7 +46,7 @@ namespace LifeGame
                 }
                 foreach (var pair in Blocks) pair.Value.ChangeAlive();
                 tool_LifeCount.Message = $"Lives : {liveCount}";
-                tool_TimeCount.Message = $"Time : {(uint)(count / updateSpan)}";
+                tool_TimeCount.Message = $"Generation : {(uint)(count / updateSpan)}";
                 DataBase.Data.AddLast(liveCount);
             }
         }
@@ -78,7 +78,7 @@ namespace LifeGame
             ToolHelper.AddComponent(tool_ChangeState);
             tool_LifeCount = new Text($"Lives : {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}");
             ToolHelper.AddComponent(tool_LifeCount);
-            tool_TimeCount = new Text($"Time : {(uint)(count / updateSpan)}");
+            tool_TimeCount = new Text($"Generation : {(uint)(count / updateSpan)}");
             ToolHelper.AddComponent(tool_TimeCount);
             Register();
             IOBinary();
@@ -129,9 +129,10 @@ namespace LifeGame
             count = 0;
             foreach (var pair in Blocks) pair.Value.IsAlive = false;
             DataBase.Data.Clear();
-            if (stopped) tool_ChangeState.Label = "Run";
+            tool_ChangeState.Label = "Run";
             tool_LifeCount.Message = $"Lives: {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}";
-            tool_TimeCount.Message = $"Time : 0";
+            tool_TimeCount.Message = $"Generation : 0";
+            stopped = true;
         }
         private void Tool_ChangeUpdateSpan(object sender, ToolValueEventArgs<int> e)
         {
@@ -152,7 +153,7 @@ namespace LifeGame
                 InitialDirectory = Environment.CurrentDirectory
             };
             var result = dialog.ShowDialog(out var log);
-            tool_load_Error.IsUpdated = !result;
+            tool_load_Error.IsUpdated = !result && !string.IsNullOrEmpty(log);
             tool_load_Error.Message = log;
             if (!result) return;
             var blocks = DataBase.Deserialize(dialog.FileName);
@@ -169,7 +170,7 @@ namespace LifeGame
                 InitialDirectory = Environment.CurrentDirectory
             };
             var result = dialog.ShowDialog(out var log);
-            tool_save_Error.IsUpdated = !result;
+            tool_save_Error.IsUpdated = !result && !string.IsNullOrEmpty(log);
             tool_save_Error.Message = log;
             if (!result) return;
             DataBase.Serialize(Blocks, dialog.FileName);
