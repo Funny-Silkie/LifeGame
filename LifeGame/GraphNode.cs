@@ -98,7 +98,7 @@ namespace LifeGame
             ToolHelper.Position = new Vector2F(960, 0);
             ToolHelper.Size = new Vector2I(300, 720);
             ToolHelper.Name = "Settings";
-            ToolHelper.WindowFlags = ToolWindow.NoCollapse | ToolWindow.NoMove | ToolWindow.NoResize;
+            ToolHelper.WindowFlags = ToolWindowFlags.NoCollapse | ToolWindowFlags.NoMove | ToolWindowFlags.NoResize;
             var tool_RawData = new CheckBox("Raw Data", true);
             tool_RawData.ChangeChecked += new EventHandler<ToolValueEventArgs<bool>>(Tool_RawData);
             ToolHelper.AddComponent(tool_RawData);

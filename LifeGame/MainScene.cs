@@ -62,7 +62,7 @@ namespace LifeGame
             ToolHelper.Position = new Vector2F(960, 0);
             ToolHelper.Size = new Vector2I(300, 720);
             ToolHelper.Name = "Settings";
-            ToolHelper.WindowFlags = ToolWindow.NoCollapse | ToolWindow.NoMove | ToolWindow.NoResize;
+            ToolHelper.WindowFlags = ToolWindowFlags.NoCollapse | ToolWindowFlags.NoMove | ToolWindowFlags.NoResize;
             var tool_UpdateSpan = new InputInt1("Update Span", updateSpan)
             {
                 Max = 60,
