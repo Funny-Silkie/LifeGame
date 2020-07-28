@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -64,6 +64,8 @@ namespace LifeGame
             return result;
         }
         #region Tool
+        private InputInt1 tool_Max;
+        private InputInt1 tool_Min;
         public Group Group { get; } = new Group();
         private void InitTool()
         {
@@ -80,13 +82,13 @@ namespace LifeGame
             var tool_ToMain = new Button("Back");
             tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
             Group.AddComponent(tool_ToMain);
-            var tool_Max = new InputInt1("Max", (int)graph.MaxY)
+            tool_Max = new InputInt1("Max", (int)graph.MaxY)
             {
                 Min = (int)graph.MinY + 1
             };
             tool_Max.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MaxChange);
             Group.AddComponent(tool_Max);
-            var tool_Min = new InputInt1("Min", (int)graph.MinY)
+            tool_Min = new InputInt1("Min", (int)graph.MinY)
             {
                 Max = (int)graph.MaxY - 1
             };
@@ -101,10 +103,22 @@ namespace LifeGame
                 var array = DataBase.Data.ToArray((x, y) => new Vector2F(x, y));
                 rawData.Data = array;
                 substruct.Data = CreateSubstracts(array);
+                if (graph.MaxY <= 0)
+                {
+                    graph.MinY = 0;
                     graph.MaxX = DataBase.Data.Count <= 1 ? 1 : DataBase.Data.Count - 1;
                     graph.MaxY = CalcMax(array);
+                }
+                else
+                {
+                    graph.MaxX = DataBase.Data.Count <= 1 ? 1 : DataBase.Data.Count - 1;
+                    graph.MaxY = CalcMax(array);
+                    graph.MinY = 0;
+                }
                 tool_Max.Value = (int)graph.MaxY;
+                tool_Max.Min = 0;
                 tool_Min.Value = (int)graph.MinY;
+                tool_Min.Max = 0;
             }
         }
         private void Tool_MaxChange(object sender, ToolValueEventArgs<int> e)
