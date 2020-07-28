@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
@@ -19,8 +19,13 @@ namespace LifeGame
             for (int x = 0; x < DataBase.Size.X; x++)
                 for (int y = 0; y < DataBase.Size.Y; y++)
                 {
+                    var scale = new Vector2F(32, 24) / DataBase.Size;
                     var location = new Vector2I(x, y);
-                    var block = new Block(location, this);
+                    var block = new Block(location, this)
+                    {
+                        Scale = scale
+                    };
+                    block.Position *= scale;
                     Blocks.Add(location, block);
                     AddChildNode(block);
                 }
