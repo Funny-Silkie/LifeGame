@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Altseed2_Stastics\Altseed2-Stastics\Altseed2-Stastics.csproj" />
     <ProjectReference Include="..\Altseed2_ToolAuxiliary\Altseed2-csharp\Engine\Engine.csproj" />
     <ProjectReference Include="..\Altseed2_ToolAuxiliary\Altseed2_ToolAuxiliary\Altseed2_ToolAuxiliary.csproj" />
   </ItemGroup>
