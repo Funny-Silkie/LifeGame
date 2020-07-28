@@ -29,14 +29,7 @@ namespace LifeGame
                     Blocks.Add(location, block);
                     AddChildNode(block);
                 }
-        }
-        protected override void OnAdded()
-        {
             InitTool();
-        }
-        protected override void OnRemoved()
-        {
-            ToolHelper.ClearComponents();
         }
         protected override void OnUpdate()
         {
@@ -55,6 +48,10 @@ namespace LifeGame
                 DataBase.Data.AddLast(liveCount);
             }
         }
+        public void SetIsDrawn(bool value)
+        {
+            foreach (var node in EnumerateDescendants<DrawnNode>()) node.IsDrawn = value;
+        }
         #region Tool
         private Button tool_ChangeState;
         private Text tool_LifeCount;
@@ -62,6 +59,7 @@ namespace LifeGame
         private Text tool_load_Error;
         private Text tool_save_Error;
         private Dictionary<Entry, CheckBox> buttons;
+        public Group Group { get; } = new Group();
         private void InitTool()
         {
             ToolHelper.Position = new Vector2F(960, 0);
@@ -74,22 +72,22 @@ namespace LifeGame
                 Min = 1
             };
             tool_UpdateSpan.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_ChangeUpdateSpan);
-            ToolHelper.AddComponent(tool_UpdateSpan);
+            Group.AddComponent(tool_UpdateSpan);
             var tool_Clear = new Button("Clear");
             tool_Clear.Clicked += new EventHandler(Tool_Clear);
-            ToolHelper.AddComponent(tool_Clear);
+            Group.AddComponent(tool_Clear);
             tool_ChangeState = new Button(stopped ? (count == 0 ? "Run" :"Resume") : "Stop");
             tool_ChangeState.Clicked += new EventHandler(Tool_ChangeState);
-            ToolHelper.AddComponent(tool_ChangeState);
+            Group.AddComponent(tool_ChangeState);
             tool_LifeCount = new Text($"Lives : {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}");
-            ToolHelper.AddComponent(tool_LifeCount);
+            Group.AddComponent(tool_LifeCount);
             tool_TimeCount = new Text($"Generation : {(uint)(count / updateSpan)}");
-            ToolHelper.AddComponent(tool_TimeCount);
+            Group.AddComponent(tool_TimeCount);
             Register();
             IOBinary();
             var tool_ToGraph = new Button("Show Graph");
             tool_ToGraph.Clicked += (x, y) => DataBase.ToGraph();
-            ToolHelper.AddComponent(tool_ToGraph);
+            Group.AddComponent(tool_ToGraph);
         }
         private void IOBinary()
         {
@@ -114,7 +112,7 @@ namespace LifeGame
             tree.AddComponent(line_Save);
             tool_Export.Clicked += new EventHandler(Tool_Export);
             tree.AddComponent(tool_Export);
-            ToolHelper.AddComponent(tree);
+            Group.AddComponent(tree);
         }
         private void Register()
         {
@@ -123,7 +121,7 @@ namespace LifeGame
             {
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
-            ToolHelper.AddComponent(tree);
+            Group.AddComponent(tree);
             for (int i = 0; i <= 8; i++)
             {
                 var value = i;

@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -31,16 +31,26 @@ namespace LifeGame
         public static void Initialize()
         {
             Engine.AddNode(mainScene);
+            Engine.AddNode(graph);
+            Engine.DoEvents();
+            Engine.Update();
+            ToMain();
         }
         public static void ToGraph()
         {
-            Engine.RemoveNode(mainScene);
-            Engine.AddNode(graph);
+            Engine.Pause(graph);
+            graph.SetIsDrawn(true);
+            mainScene.SetIsDrawn(false);
+            ToolHelper.ClearComponents();
+            ToolHelper.AddComponent(graph.Group);
         }
         public static void ToMain()
         {
-            Engine.RemoveNode(graph);
-            Engine.AddNode(mainScene);
+            Engine.Pause(mainScene);
+            mainScene.SetIsDrawn(true);
+            graph.SetIsDrawn(false);
+            ToolHelper.ClearComponents();
+            ToolHelper.AddComponent(mainScene.Group);
         }
         public static void Serialize(Dictionary<Vector2I, Block> blocks, string path)
         {
