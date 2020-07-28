@@ -17,6 +17,7 @@ namespace LifeGame
             DataBase.Initialize();
             while (Engine.DoEvents())
             {
+                Engine.WindowTitle = $"Life Game FPS:{Engine.CurrentFPS}";
                 ToolHelper.Update();
                 Engine.Update();
             }
