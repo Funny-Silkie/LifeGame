@@ -60,7 +60,11 @@ namespace LifeGame
         }
         protected override void OnUpdate()
         {
-            if (IsMouseEnter() && Engine.Mouse.GetMouseButtonState(MouseButton.ButtonLeft) == ButtonState.Hold) IsAlive = true;
+            if (IsMouseEnter())
+            {
+                if (Engine.Mouse.GetMouseButtonState(MouseButton.ButtonLeft) == ButtonState.Hold) IsAlive = true;
+                if (Engine.Mouse.GetMouseButtonState(MouseButton.ButtonRight) == ButtonState.Hold) IsAlive = false;
+            }
         }
     }
 }
