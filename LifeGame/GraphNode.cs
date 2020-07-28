@@ -9,8 +9,8 @@ namespace LifeGame
     class GraphNode : Node
     {
         private readonly LineGraphDouble graph;
-        private readonly LineGraphDouble.Line rawData;
-        private readonly LineGraphDouble.Line substruct;
+        private LineGraphDouble.Line rawData;
+        private LineGraphDouble.Line substruct;
         public GraphNode()
         {
             graph = new LineGraphDouble()
@@ -23,23 +23,25 @@ namespace LifeGame
                 Size = new Vector2F(960, 720),
             };
             AddChildNode(graph);
+        }
+        protected override void OnAdded()
+        {
             rawData = graph.AddData(Array.Empty<Vector2F>());
             rawData.Color = new Color(100, 255, 100);
             substruct = graph.AddData(Array.Empty<Vector2F>());
             substruct.Color = new Color(255, 100, 100);
-        }
-        protected override void OnAdded()
-        {
-            InitTool();
             var array = DataBase.Data.ToArray((x, y) => new Vector2F(x, y));
             rawData.Data = array;
             substruct.Data = CreateSubstracts(array);
             graph.MaxX = DataBase.Data.Count == 0 ? 1 : DataBase.Data.Count;
             graph.MaxY = CalcMax(array);
+            InitTool();
         }
         protected override void OnRemoved()
         {
             ToolHelper.ClearComponents();
+            RemoveChildNode(rawData);
+            RemoveChildNode(substruct);
         }
         private static float CalcMax(IEnumerable<Vector2F> source)
         {
@@ -91,6 +93,28 @@ namespace LifeGame
             var tool_ToMain = new Button("Back");
             tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
             ToolHelper.AddComponent(tool_ToMain);
+            var tool_Max = new InputInt1("Max", (int)graph.MaxY)
+            {
+                Min = (int)graph.MinY + 1
+            };
+            tool_Max.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MaxChange);
+            ToolHelper.AddComponent(tool_Max);
+            var tool_Min = new InputInt1("Min", (int)graph.MinY)
+            {
+                Max = (int)graph.MaxY - 1
+            };
+            tool_Min.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MinChange);
+            ToolHelper.AddComponent(tool_Min);
+        }
+        private void Tool_MaxChange(object sender, ToolValueEventArgs<int> e)
+        {
+            graph.MaxY = e.NewValue;
+            ((InputInt1)sender).Min = (int)graph.MinY + 1;
+        }
+        private void Tool_MinChange(object sender, ToolValueEventArgs<int> e)
+        {
+            graph.MinY = e.NewValue;
+            ((InputInt1)sender).Max = (int)graph.MaxY - 1;
         }
         private void Tool_RawData(object sender, ToolValueEventArgs<bool> e)
         {
