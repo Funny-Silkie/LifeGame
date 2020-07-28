@@ -1,4 +1,5 @@
 ﻿using Altseed2;
+using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
@@ -7,91 +8,73 @@ namespace LifeGame
 {
     class GraphNode : Node
     {
-        private Node rawData;
-        private Node substruct;
+        private readonly LineGraphDouble graph;
+        private readonly LineGraphDouble.Line rawData;
+        private readonly LineGraphDouble.Line substruct;
+        public GraphNode()
+        {
+            graph = new LineGraphDouble()
+            {
+                GraphArea = new RectF(100, 100, 760, 520),
+                LabelX = "Generation",
+                LabelY = "Lives",
+                MaxX = 1,
+                MaxY = 10,
+                Size = new Vector2F(960, 720),
+            };
+            AddChildNode(graph);
+            rawData = graph.AddData(Array.Empty<Vector2F>());
+            rawData.Color = new Color(100, 255, 100);
+            substruct = graph.AddData(Array.Empty<Vector2F>());
+            substruct.Color = new Color(255, 100, 100);
+        }
         protected override void OnAdded()
         {
             InitTool();
-            AddChildNode(new LineNode()
-            {
-                Position = new Vector2F(100, 120),
-                Point1 = new Vector2F(100, 120),
-                Point2 = new Vector2F(100, 620),
-                Thickness = 5f,
-                ZOrder = -1
-            });
-            AddChildNode(new LineNode()
-            {
-                Position = new Vector2F(100, 620),
-                Point1 = new Vector2F(100, 620),
-                Point2 = new Vector2F(850, 620),
-                Thickness = 5f,
-                ZOrder = -1
-            });
-            rawData = new Node();
-            substruct = new Node();
-            PlotData(rawData, DataBase.Data, new Color(100, 255, 100));
-            PlotData(substruct, CreateSubstracts(DataBase.Data), new Color(255, 100, 100));
-            AddChildNode(rawData);
-            AddChildNode(substruct);
+            var array = DataBase.Data.ToArray((x, y) => new Vector2F(x, y));
+            rawData.Data = array;
+            substruct.Data = CreateSubstracts(array);
+            graph.MaxX = DataBase.Data.Count == 0 ? 1 : DataBase.Data.Count;
+            graph.MaxY = CalcMax(array);
         }
         protected override void OnRemoved()
         {
             ToolHelper.ClearComponents();
-            RemoveChildNode(rawData);
-            RemoveChildNode(substruct);
-            rawData = null;
-            substruct = null;
         }
-        private static int[] CreateSubstracts(ICollection<int> data)
+        private static float CalcMax(IEnumerable<Vector2F> source)
         {
-            if (data.Count <= 1) return Array.Empty<int>();
-            var result = new int[data.Count];
-            var pre = 0;
+            if (source == null) throw new ArgumentNullException(nameof(source), "引数がnullです");
+            var result = 1f;
+            foreach (var current in source)
+                if (result < current.Y)
+                    result = current.Y;
+            return result;
+        }
+        private static Vector2F[] CreateSubstracts(ICollection<Vector2F> data)
+        {
+            if (data.Count <= 1) return Array.Empty<Vector2F>();
+            var result = new Vector2F[data.Count];
+            var pre = 0f;
             var i = 0;
             foreach (var current in data)
             {
-                result[i++] = current - pre;
-                pre = current;
+                result[i++] = new Vector2F(current.X, current.Y - pre);
+                pre = current.Y;
             }
             return result;
         }
-        private static int[] CreateSum(ICollection<int> data)
+        private static Vector2F[] CreateSum(ICollection<Vector2F> data)
         {
-            var result = new int[data.Count];
+            var result = new Vector2F[data.Count];
             var i = 0;
-            var sum = 0;
+            var sum = 0f;
             foreach (var current in data)
             {
-                sum += current;
-                result[i++] = sum;
+                sum += current.Y;
+                result[i++] = new Vector2F(current.X, sum);
             }
             return result;
         }
-        private static void PlotData(Node registeredNode, ICollection<int> data, Color color)
-        {
-            var cellCount = DataBase.Size.X * DataBase.Size.Y;
-            if (data.Count > 0)
-            {
-                var positions = new Vector2F[data.Count];
-                var interval = 750f / data.Count;
-                var i = 0;
-                foreach (var current in data) positions[i++] = new Vector2F(100 + interval * i, 620f - current * 500f / cellCount);
-                for (i = 1; i < data.Count; i++)
-                {
-                    var node = new LineNode()
-                    {
-                        Color = color,
-                        Position = GetSmallPos(positions[i - 1], positions[i]),
-                        Point1 = positions[i - 1],
-                        Point2 = positions[i],
-                        Thickness = 2f
-                    };
-                    registeredNode.AddChildNode(node);
-                }
-            }
-        }
-        static Vector2F GetSmallPos(Vector2F left, Vector2F right) => new Vector2F(MathF.Min(left.X, right.X), MathF.Min(left.Y, right.Y));
         #region Tool
         private void InitTool()
         {
@@ -111,14 +94,33 @@ namespace LifeGame
         }
         private void Tool_RawData(object sender, ToolValueEventArgs<bool> e)
         {
-            if (e.NewValue) AddChildNode(rawData);
-            else RemoveChildNode(rawData);
+            rawData.Color = e.NewValue ? new Color(100, 255, 100) : default;
         }
         private void Tool_Substract(object sender, ToolValueEventArgs<bool> e)
         {
-            if (e.NewValue) AddChildNode(substruct);
-            else RemoveChildNode(substruct);
+            substruct.Color = e.NewValue ? new Color(255, 100, 100) : default;
         }
         #endregion
+    }
+    public static class DataHelper
+    {
+        public static TResult[] ToArray<TSource, TResult>(this LinkedList<TSource> list, Func<int, TSource, TResult> converter)
+        {
+            if (list == null) throw new ArgumentNullException(nameof(list), "引数がnullです");
+            if (converter == null) throw new ArgumentNullException(nameof(converter), "引数がnullです");
+            if (list.Count == 0) return Array.Empty<TResult>();
+            var result = new TResult[list.Count];
+            var i = 0;
+            foreach (var current in list) result[i] = converter.Invoke(i++, current);
+            return result;
+        }
+        public static T[] ToArray<T>(this LinkedList<T> list)
+        {
+            if (list == null) throw new ArgumentNullException(nameof(list), "引数がnullです");
+            if (list.Count == 0) return Array.Empty<T>();
+            var result = new T[list.Count];
+            list.CopyTo(result, 0);
+            return result;
+        }
     }
 }
