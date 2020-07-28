@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
@@ -87,32 +87,42 @@ namespace LifeGame
             ToolHelper.AddComponent(tool_TimeCount);
             Register();
             IOBinary();
-            var tool_Export = new Button("Export as csv");
-            tool_Export.Clicked += new EventHandler(Tool_Export);
-            ToolHelper.AddComponent(tool_Export);
             var tool_ToGraph = new Button("Show Graph");
             tool_ToGraph.Clicked += (x, y) => DataBase.ToGraph();
             ToolHelper.AddComponent(tool_ToGraph);
         }
         private void IOBinary()
         {
-            var tree = new TreeNode("I/O");
-            ToolHelper.AddComponent(tree);
+            var tree = new TreeNode("I/O")
+            {
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
+            var line_Load = new Line();
             var tool_LoadBinary = new Button("Load Binary");
             tool_LoadBinary.Clicked += new EventHandler(Tool_LoadBinary);
-            tree.AddComponent(tool_LoadBinary);
+            line_Load.AddComponent(tool_LoadBinary);
             tool_load_Error = new Text() { IsUpdated = false };
-            tree.AddComponent(tool_load_Error);
+            line_Load.AddComponent(tool_load_Error);
+            tree.AddComponent(line_Load);
+            var line_Save = new Line();
             var tool_SaveBinary = new Button("Save Binary");
             tool_SaveBinary.Clicked += new EventHandler(Tool_SaveBinary);
-            tree.AddComponent(tool_SaveBinary);
+            line_Save.AddComponent(tool_SaveBinary);
             tool_save_Error = new Text() { IsUpdated = false };
-            tree.AddComponent(tool_save_Error);
+            line_Save.AddComponent(tool_save_Error);
+            var tool_Export = new Button("Export as csv");
+            tree.AddComponent(line_Save);
+            tool_Export.Clicked += new EventHandler(Tool_Export);
+            tree.AddComponent(tool_Export);
+            ToolHelper.AddComponent(tree);
         }
         private void Register()
         {
             buttons = new Dictionary<Entry, CheckBox>(18);
-            var tree = new TreeNode("Dead-Alive setting");
+            var tree = new TreeNode("Dead-Alive setting")
+            {
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
             ToolHelper.AddComponent(tree);
             for (int i = 0; i <= 8; i++)
             {
