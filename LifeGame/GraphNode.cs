@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -79,6 +79,7 @@ namespace LifeGame
             ToolHelper.WindowFlags = ToolWindowFlags.NoCollapse | ToolWindowFlags.NoMove | ToolWindowFlags.NoResize;
             var tree_GraphButtons = new TreeNode("Lines")
             {
+                DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree_GraphButtons);
@@ -110,6 +111,7 @@ namespace LifeGame
         {
             var tree = new TreeNode("Moving Average")
             {
+                DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree);
@@ -185,16 +187,19 @@ namespace LifeGame
                 array[i - count] = new Vector2F(i - count / 2, current / count);
                 current -= rawData[i - count].Y;
             }
-            var line = graph.AddData(array);
+            var graphLine = graph.AddData(array);
             var color = tool_MA_LineColor.Color;
-            line.Color = color;
-            movingAves.Add(count, line);
+            graphLine.Color = color;
+            movingAves.Add(count, graphLine);
             var button = new CheckBox(count.ToString(), true);
             button.ChangeChecked += (x, y) =>
             {
-                line.Color = y.NewValue ? color : default;
+                graphLine.Color = y.NewValue ? color : default;
             };
-            graphButtonGroup.AddComponent(button);
+            var lineComponent = new Line();
+            lineComponent.AddComponent(button);
+            lineComponent.AddComponent(new ColorButton(count.ToString(), color, new Vector2F(15f, 15f)));
+            graphButtonGroup.AddComponent(lineComponent);
         }
         private void Tool_RawData(object sender, ToolValueEventArgs<bool> e)
         {
