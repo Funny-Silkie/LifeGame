@@ -194,11 +194,11 @@ namespace LifeGame
             var head = true;
             foreach (var current in DataBase.Data)
             {
-                if (!head) builder.Append(',');
+                if (!head) builder.Append('\n');
                 builder.Append(current);
                 if (head) head = false;
             }
-            using var writer = new StreamWriter("Data.txt", false);
+            using var writer = new StreamWriter("Data.csv", false);
             writer.Write(builder.ToString());
         }
         #endregion
