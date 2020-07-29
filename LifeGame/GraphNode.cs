@@ -64,21 +64,32 @@ namespace LifeGame
             return result;
         }
         #region Tool
+        private readonly Dictionary<int, LineGraphDouble.Line> movingAves = new Dictionary<int, LineGraphDouble.Line>();
         private InputInt1 tool_Max;
         private InputInt1 tool_Min;
+        private InputInt1 tool_MA_Count;
+        private ColorEdit tool_MA_LineColor;
         public Group Group { get; } = new Group();
+        private readonly Group graphButtonGroup = new Group();
         private void InitTool()
         {
             ToolHelper.Position = new Vector2F(960, 0);
             ToolHelper.Size = new Vector2I(300, 720);
             ToolHelper.Name = "Settings";
             ToolHelper.WindowFlags = ToolWindowFlags.NoCollapse | ToolWindowFlags.NoMove | ToolWindowFlags.NoResize;
+            var tree_GraphButtons = new TreeNode("Lines")
+            {
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
+            Group.AddComponent(tree_GraphButtons);
             var tool_RawData = new CheckBox("Raw Data", true);
             tool_RawData.ChangeChecked += new EventHandler<ToolValueEventArgs<bool>>(Tool_RawData);
-            Group.AddComponent(tool_RawData);
+            tree_GraphButtons.AddComponent(tool_RawData);
             var tool_Substract = new CheckBox("Substract", true);
             tool_Substract.ChangeChecked += new EventHandler<ToolValueEventArgs<bool>>(Tool_Substract);
-            Group.AddComponent(tool_Substract);
+            tree_GraphButtons.AddComponent(tool_Substract);
+            tree_GraphButtons.AddComponent(graphButtonGroup);
+            MovingAverages();
             var tool_ToMain = new Button("Back");
             tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
             Group.AddComponent(tool_ToMain);
@@ -94,6 +105,28 @@ namespace LifeGame
             };
             tool_Min.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MinChange);
             Group.AddComponent(tool_Min);
+        }
+        private void MovingAverages()
+        {
+            var tree = new TreeNode("Moving Average")
+            {
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
+            Group.AddComponent(tree);
+            tool_MA_Count = new InputInt1("Count", 1)
+            {
+                Max = 2,
+                Min = 1
+            };
+            tree.AddComponent(tool_MA_Count);
+            tool_MA_LineColor = new ColorEdit("Color", new Color(100, 100, 255))
+            {
+                EditAlpha = false
+            };
+            tree.AddComponent(tool_MA_LineColor);
+            var button_Do = new Button("Create Line");
+            button_Do.Clicked += new EventHandler(Tool_MA_Button_Do);
+            tree.AddComponent(button_Do);
         }
         public void SetIsDrawn(bool value)
         {
@@ -119,6 +152,13 @@ namespace LifeGame
                 tool_Max.Min = 0;
                 tool_Min.Value = (int)graph.MinY;
                 tool_Min.Max = 0;
+                tool_MA_Count.Max = DataBase.Data.Count <= 0 ? 1 : DataBase.Data.Count;
+            }
+            else
+            {
+                graphButtonGroup.ClearComponents();
+                foreach (var pair in movingAves) System.Diagnostics.Debug.WriteLine(graph.RemoveData(pair.Value));
+                movingAves.Clear();
             }
         }
         private void Tool_MaxChange(object sender, ToolValueEventArgs<int> e)
@@ -130,6 +170,31 @@ namespace LifeGame
         {
             graph.MinY = e.NewValue;
             ((InputInt1)sender).Max = (int)graph.MaxY - 1;
+        }
+        private void Tool_MA_Button_Do(object sender, EventArgs e)
+        {
+            var count = tool_MA_Count.Value;
+            if (movingAves.ContainsKey(count) || DataBase.Data.Count <= 0) return;
+            var array = new Vector2F[DataBase.Data.Count - count];
+            var rawData = this.rawData.Data;
+            var current = 0f;
+            for (int i = 0; i < count - 1; i++) current += rawData[i].Y;
+            for (int i = count; i < rawData.Length; i++)
+            {
+                current += rawData[i].Y;
+                array[i - count] = new Vector2F(i - count / 2, current / count);
+                current -= rawData[i - count].Y;
+            }
+            var line = graph.AddData(array);
+            var color = tool_MA_LineColor.Color;
+            line.Color = color;
+            movingAves.Add(count, line);
+            var button = new CheckBox(count.ToString(), true);
+            button.ChangeChecked += (x, y) =>
+            {
+                line.Color = y.NewValue ? color : default;
+            };
+            graphButtonGroup.AddComponent(button);
         }
         private void Tool_RawData(object sender, ToolValueEventArgs<bool> e)
         {
