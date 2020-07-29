@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -184,7 +184,7 @@ namespace LifeGame
             for (int i = count; i < rawData.Length; i++)
             {
                 current += rawData[i].Y;
-                array[i - count] = new Vector2F(i - count / 2, current / count);
+                array[i - count] = new Vector2F(i - count, current / count);
                 current -= rawData[i - count].Y;
             }
             var graphLine = graph.AddData(array);
