@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -90,7 +90,10 @@ namespace LifeGame
             };
             Group.AddComponent(tree);
             var line = graph.AddData(CalcExp(DataBase.Data.Count, 0.3f, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, (int)graph.MaxY));
-            var colorEdit = new ColorEdit("Color", new Color(255, 255, 255));
+            var colorEdit = new ColorEdit("Color", new Color(255, 255, 255))
+            {
+                EditAlpha = false
+            };
             colorEdit.ColorChanged += (x, y) => line.Color = y.NewValue;
             tree.AddComponent(colorEdit);
             var inputFloat_R = new InputFloat1("r", 0.3f)
