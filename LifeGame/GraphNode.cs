@@ -253,7 +253,9 @@ namespace LifeGame
             var button = new CheckBox(count.ToString(), true);
             button.ChangeChecked += (x, y) =>
             {
-                graphLine.Color = y.NewValue ? color : default;
+                var c = graphLine.Color;
+                c.A = y.NewValue ? byte.MaxValue : default;
+                graphLine.Color = c;
             };
             var lineComponent = new Line();
             lineComponent.AddComponent(button);
