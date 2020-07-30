@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.ToolAuxiliary;
 using System.Collections.Generic;
 using System.IO;
@@ -8,8 +8,8 @@ namespace LifeGame
 {
     static class DataBase
     {
-        private static readonly MainScene mainScene;
-        private static readonly GraphNode graph;
+        private static MainScene mainScene;
+        private static GraphNode graph;
         public static LinkedList<int> Data { get; } = new LinkedList<int>();
         public static Dictionary<Entry, bool> LiveDeadTable { get; } = new Dictionary<Entry, bool>(18, new EntryComparer())
         {
@@ -24,14 +24,11 @@ namespace LifeGame
             { new Entry(8, false), false }, { new Entry(8, true), false },
         };
         public static Vector2I Size { get; private set; } = new Vector2I(32, 24);
-        static DataBase()
-        {
-            mainScene = new MainScene();
-            graph = new GraphNode();
-        }
         public static void Initialize(string[] args = null)
         {
             if (args != null && args.Length == 2 && int.TryParse(args[0], out var x) && int.TryParse(args[1], out var y)) Size = new Vector2I(x, y);
+            mainScene = new MainScene();
+            graph = new GraphNode();
             Engine.AddNode(mainScene);
             Engine.AddNode(graph);
             Engine.DoEvents();
