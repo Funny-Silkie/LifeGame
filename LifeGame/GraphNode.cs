@@ -29,6 +29,15 @@ namespace LifeGame
             substruct.Color = new Color(255, 100, 100);
             InitTool();
         }
+        private static Vector2F[] CalcExp(int count, float r, float init) => CalcExp(count, r, init, DataBase.Size.X * DataBase.Size.Y);
+        private static Vector2F[] CalcExp(int count, float r, float init, int k)
+        {
+            if (count == 0 || k == 0) return Array.Empty<Vector2F>();
+            var result = new Vector2F[count];
+            result[0] = new Vector2F(0f, init);
+            for (int i = 1; i < count; i++) result[i] = new Vector2F(i, result[i - 1].Y + r * result[i - 1].Y * (k - result[i - 1].Y) / k);
+            return result;
+        }
         private static float CalcMax(IEnumerable<Vector2F> source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source), "引数がnullです");
@@ -64,6 +73,7 @@ namespace LifeGame
             return result;
         }
         #region Tool
+        private Action updateEXPLine;
         private readonly Dictionary<int, LineGraphDouble.Line> movingAves = new Dictionary<int, LineGraphDouble.Line>();
         private InputInt1 tool_Max;
         private InputInt1 tool_Min;
@@ -71,6 +81,41 @@ namespace LifeGame
         private ColorEdit tool_MA_LineColor;
         public Group Group { get; } = new Group();
         private readonly Group graphButtonGroup = new Group();
+        private void InitEXP()
+        {
+            var tree = new TreeNode("Comparison")
+            {
+                DefaultOpened = true,
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
+            Group.AddComponent(tree);
+            var line = graph.AddData(CalcExp(DataBase.Data.Count, 0.3f, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, (int)graph.MaxY));
+            var colorEdit = new ColorEdit("Color", new Color(255, 255, 255));
+            colorEdit.ColorChanged += (x, y) => line.Color = y.NewValue;
+            tree.AddComponent(colorEdit);
+            var inputFloat_R = new InputFloat1("r", 0.3f)
+            {
+                Max = 1.0f,
+                Min = 0.0f
+            };
+            inputFloat_R.ValueChanged += (x, y) => updateEXPLine?.Invoke();
+            tree.AddComponent(inputFloat_R);
+            var inputInt_K = new InputInt1("K", (int)graph.MaxY)
+            {
+                Min = 1
+            };
+            inputInt_K.ValueChanged += (x, y) => updateEXPLine?.Invoke();
+            tree.AddComponent(inputInt_K);
+            var checkBox = new CheckBox("Shown", true);
+            checkBox.ChangeChecked += (x, y) =>
+            {
+                var color = line.Color;
+                color.A = y.NewValue ? (byte)255 : default;
+                line.Color = color;
+            };
+            tree.AddComponent(checkBox);
+            updateEXPLine = () => line.Data = CalcExp(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
+        }
         private void InitTool()
         {
             ToolHelper.Position = new Vector2F(960, 0);
@@ -91,9 +136,7 @@ namespace LifeGame
             tree_GraphButtons.AddComponent(tool_Substract);
             tree_GraphButtons.AddComponent(graphButtonGroup);
             MovingAverages();
-            var tool_ToMain = new Button("Back");
-            tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
-            Group.AddComponent(tool_ToMain);
+            InitEXP();
             tool_Max = new InputInt1("Max", (int)graph.MaxY)
             {
                 Min = (int)graph.MinY + 1
@@ -106,6 +149,9 @@ namespace LifeGame
             };
             tool_Min.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MinChange);
             Group.AddComponent(tool_Min);
+            var tool_ToMain = new Button("Back");
+            tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
+            Group.AddComponent(tool_ToMain);
         }
         private void MovingAverages()
         {
@@ -155,11 +201,12 @@ namespace LifeGame
                 tool_Min.Value = (int)graph.MinY;
                 tool_Min.Max = 0;
                 tool_MA_Count.Max = DataBase.Data.Count <= 0 ? 1 : DataBase.Data.Count;
+                updateEXPLine?.Invoke();
             }
             else
             {
                 graphButtonGroup.ClearComponents();
-                foreach (var pair in movingAves) System.Diagnostics.Debug.WriteLine(graph.RemoveData(pair.Value));
+                foreach (var pair in movingAves) graph.RemoveData(pair.Value);
                 movingAves.Clear();
             }
         }
@@ -184,7 +231,7 @@ namespace LifeGame
             for (int i = count; i < rawData.Length; i++)
             {
                 current += rawData[i].Y;
-                array[i - count] = new Vector2F(i - count, current / count);
+                array[i - count] = new Vector2F(i, current / count);
                 current -= rawData[i - count].Y;
             }
             var graphLine = graph.AddData(array);
