@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -117,7 +117,11 @@ namespace LifeGame
                 line.Color = color;
             };
             tree.AddComponent(checkBox);
-            updateEXPLine = () => line.Data = CalcExp(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
+            updateEXPLine = () =>
+            {
+                inputInt_K.Value = (int)graph.MaxY;
+                line.Data = CalcExp(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
+            };
         }
         private void InitTool()
         {
