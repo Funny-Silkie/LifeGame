@@ -16,11 +16,13 @@ namespace LifeGame
             graph = new LineGraphDouble()
             {
                 GraphArea = new RectF(100, 100, 760, 520),
+                LabelFont = Font.LoadDynamicFontStrict("Resources/GenYoMinJP-Bold.ttf", 30),
                 LabelX = "Generation",
                 LabelY = "Lives",
                 MaxX = 1,
                 MaxY = 10,
                 Size = new Vector2F(960, 720),
+                ValueFont = Font.LoadDynamicFontStrict("Resources/GenYoMinJP-Bold.ttf", 30)
             };
             AddChildNode(graph);
             rawData = graph.AddData(Array.Empty<Vector2F>());
