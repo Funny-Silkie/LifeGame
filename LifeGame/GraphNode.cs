@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -240,12 +240,11 @@ namespace LifeGame
             var array = new Vector2F[DataBase.Data.Count - count];
             var rawData = this.rawData.Data;
             var current = 0f;
-            for (int i = 0; i < count - 1; i++) current += rawData[i].Y;
+            for (int i = 0; i < count; i++) current += rawData[i].Y;
             for (int i = count; i < rawData.Length; i++)
             {
-                current += rawData[i].Y;
                 array[i - count] = new Vector2F(i, current / count);
-                current -= rawData[i - count].Y;
+                current += rawData[i].Y - rawData[i - count].Y;
             }
             var graphLine = graph.AddData(array);
             var color = tool_MA_LineColor.Color;
