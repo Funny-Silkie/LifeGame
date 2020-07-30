@@ -14,7 +14,7 @@ namespace LifeGame
                 ToolEnabled = true
             })) return;
             Engine.ClearColor = default;
-            DataBase.Initialize();
+            DataBase.Initialize(args);
             while (Engine.DoEvents())
             {
                 Engine.WindowTitle = $"Life Game FPS:{Engine.CurrentFPS}";
