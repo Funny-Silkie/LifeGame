@@ -140,18 +140,24 @@ namespace LifeGame
             tree_GraphButtons.AddComponent(graphButtonGroup);
             MovingAverages();
             InitEXP();
+            var tree_Parameters = new TreeNode("Parameter")
+            {
+                DefaultOpened = true,
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
+            Group.AddComponent(tree_Parameters);
             tool_Max = new InputInt1("Max", (int)graph.MaxY)
             {
                 Min = (int)graph.MinY + 1
             };
             tool_Max.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MaxChange);
-            Group.AddComponent(tool_Max);
+            tree_Parameters.AddComponent(tool_Max);
             tool_Min = new InputInt1("Min", (int)graph.MinY)
             {
                 Max = (int)graph.MaxY - 1
             };
             tool_Min.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MinChange);
-            Group.AddComponent(tool_Min);
+            tree_Parameters.AddComponent(tool_Min);
             var tool_ToMain = new Button("Back");
             tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
             Group.AddComponent(tool_ToMain);
