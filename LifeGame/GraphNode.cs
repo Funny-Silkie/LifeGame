@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -259,7 +259,18 @@ namespace LifeGame
             };
             var lineComponent = new Line();
             lineComponent.AddComponent(button);
-            lineComponent.AddComponent(new ColorButton(count.ToString(), color, new Vector2F(15f, 15f)));
+            var colorEdit = new ColorEdit(string.Empty, color)
+            {
+                EditAlpha = false,
+                InputType = IToolColorEdit.ColorEditInputType.None
+            };
+            colorEdit.ColorChanged += (x, y) =>
+            {
+                var c = y.NewValue;
+                c.A = graphLine.Color.A;
+                graphLine.Color = c;
+            };
+            lineComponent.AddComponent(colorEdit);
             graphButtonGroup.AddComponent(lineComponent);
         }
         private void Tool_RawData(object sender, ToolValueEventArgs<bool> e)
