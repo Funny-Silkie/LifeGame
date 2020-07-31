@@ -101,13 +101,14 @@ namespace LifeGame
         {
             var tree = new TreeNode("Chaos")
             {
-                DefaultOpened = true,
+                //DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree);
             var line = graph.AddData(Array.Empty<Vector2F>());
-            var color = new Color(255, 255, 100);
+            var color = new Color(255, 255, 100, 0);
             line.Color = color;
+            color.A = 255;
             var colorEdit = new ColorEdit("Color", color)
             {
                 EditAlpha = false
@@ -139,13 +140,13 @@ namespace LifeGame
             };
             inputFloat_Arg.ValueChanged += (x, y) => updateChaosLine?.Invoke(false);
             tree.AddComponent(inputFloat_Arg);
-            var inputInt_Count = new InputInt1("Count", 20)
+            var inputInt_Count = new InputInt1("Count", 50)
             {
                 Min = 1
             };
             inputInt_Count.ValueChanged += (x, y) => updateChaosLine?.Invoke(false);
             tree.AddComponent(inputInt_Count);
-            var checkBox = new CheckBox("Shown", true);
+            var checkBox = new CheckBox("Shown", false);
             checkBox.ChangeChecked += (x, y) =>
             {
                 var c = line.Color;
@@ -163,11 +164,12 @@ namespace LifeGame
         {
             var tree = new TreeNode("Logistics")
             {
-                DefaultOpened = true,
+                //DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree);
             var line = graph.AddData(CalcLogistics(DataBase.Data.Count, 0.3f, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, (int)graph.MaxY));
+            line.Color = new Color(255, 255, 255, 0);
             var colorEdit = new ColorEdit("Color", new Color(255, 255, 255))
             {
                 EditAlpha = false
@@ -192,7 +194,7 @@ namespace LifeGame
             };
             inputInt_K.ValueChanged += (x, y) => updateLogisticsLine?.Invoke(false);
             tree.AddComponent(inputInt_K);
-            var checkBox = new CheckBox("Shown", true);
+            var checkBox = new CheckBox("Shown", false);
             checkBox.ChangeChecked += (x, y) =>
             {
                 var color = line.Color;
@@ -225,9 +227,6 @@ namespace LifeGame
             tool_Substract.ChangeChecked += new EventHandler<ToolValueEventArgs<bool>>(Tool_Substract);
             tree_GraphButtons.AddComponent(tool_Substract);
             tree_GraphButtons.AddComponent(graphButtonGroup);
-            MovingAverages();
-            InitLogistics();
-            InitChaos();
             var tree_Parameters = new TreeNode("Parameter")
             {
                 DefaultOpened = true,
@@ -246,6 +245,9 @@ namespace LifeGame
             };
             tool_Min.ValueChanged += new EventHandler<ToolValueEventArgs<int>>(Tool_MinChange);
             tree_Parameters.AddComponent(tool_Min);
+            MovingAverages();
+            InitChaos();
+            InitLogistics();
             var tool_ToMain = new Button("Back");
             tool_ToMain.Clicked += (x, y) => DataBase.ToMain();
             Group.AddComponent(tool_ToMain);
@@ -254,7 +256,7 @@ namespace LifeGame
         {
             var tree = new TreeNode("Moving Average")
             {
-                DefaultOpened = true,
+                //DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree);

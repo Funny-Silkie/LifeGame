@@ -125,6 +125,7 @@ namespace LifeGame
             buttons = new Dictionary<Entry, CheckBox>(18);
             var tree = new TreeNode("Dead-Alive setting")
             {
+                DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree);
