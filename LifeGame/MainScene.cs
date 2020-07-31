@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
@@ -180,7 +180,9 @@ namespace LifeGame
         {
             var dialog = new SaveFileDialog()
             {
+                AddExtension = true,
                 CheckPathExists = true,
+                DefaultExtension = "lb",
                 Filter = "lb",
                 InitialDirectory = Environment.CurrentDirectory
             };
