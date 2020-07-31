@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.ToolAuxiliary;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +23,7 @@ namespace LifeGame
             { new Entry(7, false), false }, { new Entry(7, true), false },
             { new Entry(8, false), false }, { new Entry(8, true), false },
         };
-        public static Vector2I Size { get; private set; } = new Vector2I(32, 24);
+        public static Vector2I Size { get; private set; } = new Vector2I(40, 30);
         public static void Initialize(string[] args = null)
         {
             if (args != null && args.Length == 2 && int.TryParse(args[0], out var x) && int.TryParse(args[1], out var y)) Size = new Vector2I(x, y);
