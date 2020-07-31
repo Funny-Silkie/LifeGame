@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -75,7 +75,7 @@ namespace LifeGame
             return result;
         }
         #region Tool
-        private Action updateEXPLine;
+        private Action updateLogisticsLine;
         private readonly Dictionary<int, LineGraphDouble.Line> movingAves = new Dictionary<int, LineGraphDouble.Line>();
         private InputInt1 tool_Max;
         private InputInt1 tool_Min;
@@ -83,9 +83,9 @@ namespace LifeGame
         private ColorEdit tool_MA_LineColor;
         public Group Group { get; } = new Group();
         private readonly Group graphButtonGroup = new Group();
-        private void InitEXP()
+        private void InitLogistics()
         {
-            var tree = new TreeNode("Comparison")
+            var tree = new TreeNode("Logistics")
             {
                 DefaultOpened = true,
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
@@ -103,13 +103,13 @@ namespace LifeGame
                 Max = 1.0f,
                 Min = 0.0f
             };
-            inputFloat_R.ValueChanged += (x, y) => updateEXPLine?.Invoke();
+            inputFloat_R.ValueChanged += (x, y) => updateLogisticsLine?.Invoke();
             tree.AddComponent(inputFloat_R);
             var inputInt_K = new InputInt1("K", (int)graph.MaxY)
             {
                 Min = 1
             };
-            inputInt_K.ValueChanged += (x, y) => updateEXPLine?.Invoke();
+            inputInt_K.ValueChanged += (x, y) => updateLogisticsLine?.Invoke();
             tree.AddComponent(inputInt_K);
             var checkBox = new CheckBox("Shown", true);
             checkBox.ChangeChecked += (x, y) =>
@@ -119,7 +119,7 @@ namespace LifeGame
                 line.Color = color;
             };
             tree.AddComponent(checkBox);
-            updateEXPLine = () =>
+            updateLogisticsLine = () =>
             {
                 line.Data = CalcExp(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
             };
@@ -144,7 +144,7 @@ namespace LifeGame
             tree_GraphButtons.AddComponent(tool_Substract);
             tree_GraphButtons.AddComponent(graphButtonGroup);
             MovingAverages();
-            InitEXP();
+            InitLogistics();
             var tree_Parameters = new TreeNode("Parameter")
             {
                 DefaultOpened = true,
@@ -215,7 +215,7 @@ namespace LifeGame
                 tool_Min.Value = (int)graph.MinY;
                 tool_Min.Max = 0;
                 tool_MA_Count.Max = DataBase.Data.Count <= 0 ? 1 : DataBase.Data.Count;
-                updateEXPLine?.Invoke();
+                updateLogisticsLine?.Invoke();
             }
             else
             {
