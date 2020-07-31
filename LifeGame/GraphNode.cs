@@ -75,7 +75,7 @@ namespace LifeGame
             return result;
         }
         #region Tool
-        private Action updateLogisticsLine;
+        private Action<bool> updateLogisticsLine;
         private readonly Dictionary<int, LineGraphDouble.Line> movingAves = new Dictionary<int, LineGraphDouble.Line>();
         private InputInt1 tool_Max;
         private InputInt1 tool_Min;
@@ -103,13 +103,13 @@ namespace LifeGame
                 Max = 1.0f,
                 Min = 0.0f
             };
-            inputFloat_R.ValueChanged += (x, y) => updateLogisticsLine?.Invoke();
+            inputFloat_R.ValueChanged += (x, y) => updateLogisticsLine?.Invoke(false);
             tree.AddComponent(inputFloat_R);
             var inputInt_K = new InputInt1("K", (int)graph.MaxY)
             {
                 Min = 1
             };
-            inputInt_K.ValueChanged += (x, y) => updateLogisticsLine?.Invoke();
+            inputInt_K.ValueChanged += (x, y) => updateLogisticsLine?.Invoke(false);
             tree.AddComponent(inputInt_K);
             var checkBox = new CheckBox("Shown", true);
             checkBox.ChangeChecked += (x, y) =>
@@ -119,8 +119,9 @@ namespace LifeGame
                 line.Color = color;
             };
             tree.AddComponent(checkBox);
-            updateLogisticsLine = () =>
+            updateLogisticsLine = (x) =>
             {
+                if (x) inputInt_K.Value = (int)graph.MaxY;
                 line.Data = CalcExp(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
             };
         }
@@ -215,7 +216,7 @@ namespace LifeGame
                 tool_Min.Value = (int)graph.MinY;
                 tool_Min.Max = 0;
                 tool_MA_Count.Max = DataBase.Data.Count <= 0 ? 1 : DataBase.Data.Count;
-                updateLogisticsLine?.Invoke();
+                updateLogisticsLine?.Invoke(true);
             }
             else
             {
