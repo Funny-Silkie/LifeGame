@@ -33,9 +33,9 @@ namespace LifeGame
         }
         protected override void OnUpdate()
         {
-            var liveCount = 0;
             if (!stopped && count++ != 0 && count % updateSpan == 0)
             {
+                var liveCount = 0;
                 foreach (var pair in Blocks)
                 {
                     var block = pair.Value;
@@ -46,11 +46,17 @@ namespace LifeGame
                 tool_LifeCount.Message = $"Lives : {liveCount}";
                 tool_TimeCount.Message = $"Generation : {(uint)(count / updateSpan)}";
                 DataBase.Data.AddLast(liveCount);
+                if (liveCount == 0) StopOrResume();
             }
         }
         public void SetIsDrawn(bool value)
         {
             foreach (var node in EnumerateDescendants<DrawnNode>()) node.IsDrawn = value;
+        }
+        private void StopOrResume()
+        {
+            stopped = !stopped;
+            tool_ChangeState.Label = stopped ? "Resume" : "Stop";
         }
         #region Tool
         private Button tool_ChangeState;
@@ -143,7 +149,7 @@ namespace LifeGame
             foreach (var pair in Blocks) pair.Value.IsAlive = false;
             DataBase.Data.Clear();
             tool_ChangeState.Label = "Run";
-            tool_LifeCount.Message = $"Lives: {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}";
+            tool_LifeCount.Message = $"Lives : {Blocks.Sum(x => x.Value.IsAlive ? 1 : 0)}";
             tool_TimeCount.Message = $"Generation : 0";
             stopped = true;
         }
@@ -151,11 +157,7 @@ namespace LifeGame
         {
             updateSpan = e.NewValue;
         }
-        private void Tool_ChangeState(object sender, EventArgs e)
-        {
-            stopped = !stopped;
-            ((Button)sender).Label = stopped ? "Resume" : "Stop";
-        }
+        private void Tool_ChangeState(object sender, EventArgs e) => StopOrResume();
         private void Tool_LoadBinary(object sender, EventArgs e)
         {
             var dialog = new OpenFileDialog()
