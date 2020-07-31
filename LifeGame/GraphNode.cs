@@ -96,7 +96,12 @@ namespace LifeGame
             {
                 EditAlpha = false
             };
-            colorEdit.ColorChanged += (x, y) => line.Color = y.NewValue;
+            colorEdit.ColorChanged += (x, y) =>
+            {
+                var c = y.NewValue;
+                c.A = line.Color.A;
+                line.Color = c;
+            };
             tree.AddComponent(colorEdit);
             var inputFloat_R = new InputFloat1("r", 0.3f)
             {
