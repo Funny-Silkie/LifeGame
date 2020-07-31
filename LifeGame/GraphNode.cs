@@ -1,4 +1,4 @@
-﻿using Altseed2;
+using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -261,10 +261,11 @@ namespace LifeGame
             };
             var lineComponent = new Line();
             lineComponent.AddComponent(button);
-            var colorEdit = new ColorEdit(string.Empty, color)
+            var colorEdit = new ColorEdit(count.ToString(), color)
             {
                 EditAlpha = false,
-                InputType = IToolColorEdit.ColorEditInputType.None
+                InputType = IToolColorEdit.ColorEditInputType.None,
+                ShowLabel = false
             };
             colorEdit.ColorChanged += (x, y) =>
             {
