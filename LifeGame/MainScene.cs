@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.ToolAuxiliary;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace LifeGame
     {
         private int count;
         private bool stopped = true;
-        private int updateSpan = 5;
+        private int updateSpan = 1;
         public Dictionary<Vector2I, Block> Blocks { get; } = new Dictionary<Vector2I, Block>(DataBase.Size.X * DataBase.Size.Y);
         public MainScene()
         {
