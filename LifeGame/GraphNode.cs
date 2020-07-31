@@ -31,8 +31,8 @@ namespace LifeGame
             substruct.Color = new Color(255, 100, 100);
             InitTool();
         }
-        private static Vector2F[] CalcExp(int count, float r, float init) => CalcExp(count, r, init, DataBase.Size.X * DataBase.Size.Y);
-        private static Vector2F[] CalcExp(int count, float r, float init, int k)
+        private static Vector2F[] CalcLogistics(int count, float r, float init) => CalcLogistics(count, r, init, DataBase.Size.X * DataBase.Size.Y);
+        private static Vector2F[] CalcLogistics(int count, float r, float init, int k)
         {
             if (count == 0 || k == 0) return Array.Empty<Vector2F>();
             var result = new Vector2F[count];
@@ -91,7 +91,7 @@ namespace LifeGame
                 FrameType = IToolTreeNode.TreeNodeFrameType.Framed
             };
             Group.AddComponent(tree);
-            var line = graph.AddData(CalcExp(DataBase.Data.Count, 0.3f, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, (int)graph.MaxY));
+            var line = graph.AddData(CalcLogistics(DataBase.Data.Count, 0.3f, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, (int)graph.MaxY));
             var colorEdit = new ColorEdit("Color", new Color(255, 255, 255))
             {
                 EditAlpha = false
@@ -127,7 +127,7 @@ namespace LifeGame
             updateLogisticsLine = (x) =>
             {
                 if (x) inputInt_K.Value = (int)graph.MaxY;
-                line.Data = CalcExp(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
+                line.Data = CalcLogistics(DataBase.Data.Count, inputFloat_R.Value, DataBase.Data.Count > 0 ? DataBase.Data.First.Value : 0, inputInt_K.Value);
             };
         }
         private void InitTool()
