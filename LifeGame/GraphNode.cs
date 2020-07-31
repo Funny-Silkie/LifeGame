@@ -1,4 +1,4 @@
-using Altseed2;
+﻿using Altseed2;
 using Altseed2.Stastics;
 using Altseed2.ToolAuxiliary;
 using System;
@@ -30,6 +30,19 @@ namespace LifeGame
             substruct = graph.AddData(Array.Empty<Vector2F>());
             substruct.Color = new Color(255, 100, 100);
             InitTool();
+        }
+        private static Vector2F[] CalcChaos(int count, float lamda, float init, float arg = 1f)
+        {
+            if (count <= 0) return Array.Empty<Vector2F>();
+            var result = new Vector2F[count];
+            result[0] = new Vector2F(0, init * arg);
+            var current = init;
+            for (int i = 1; i < count; i++)
+            {
+                current += lamda * current * (1 - current);
+                result[i] = new Vector2F(i * (float)DataBase.Data.Count / count, current * arg);
+            }
+            return result;
         }
         private static Vector2F[] CalcLogistics(int count, float r, float init) => CalcLogistics(count, r, init, DataBase.Size.X * DataBase.Size.Y);
         private static Vector2F[] CalcLogistics(int count, float r, float init, int k)
@@ -75,6 +88,7 @@ namespace LifeGame
             return result;
         }
         #region Tool
+        private Action<bool> updateChaosLine;
         private Action<bool> updateLogisticsLine;
         private readonly Dictionary<int, LineGraphDouble.Line> movingAves = new Dictionary<int, LineGraphDouble.Line>();
         private InputInt1 tool_Max;
@@ -83,6 +97,68 @@ namespace LifeGame
         private ColorEdit tool_MA_LineColor;
         public Group Group { get; } = new Group();
         private readonly Group graphButtonGroup = new Group();
+        private void InitChaos()
+        {
+            var tree = new TreeNode("Chaos")
+            {
+                DefaultOpened = true,
+                FrameType = IToolTreeNode.TreeNodeFrameType.Framed
+            };
+            Group.AddComponent(tree);
+            var line = graph.AddData(Array.Empty<Vector2F>());
+            var color = new Color(255, 255, 100);
+            line.Color = color;
+            var colorEdit = new ColorEdit("Color", color)
+            {
+                EditAlpha = false
+            };
+            colorEdit.ColorChanged += (x, y) =>
+            {
+                var c = y.NewValue;
+                c.A = line.Color.A;
+                line.Color = c;
+            };
+            tree.AddComponent(colorEdit);
+            var inputFloat_Init = new InputFloat1("InitValue", 0.1f)
+            {
+                Min = 0.0f,
+                Max = 1.0f
+            };
+            inputFloat_Init.ValueChanged += (x, y) => updateChaosLine?.Invoke(false);
+            tree.AddComponent(inputFloat_Init);
+            var inputFloat_Lamda = new InputFloat1("lamda", 1.0f)
+            {
+                Min = 0.0f,
+                Max = 4.0f,
+            };
+            inputFloat_Lamda.ValueChanged += (x, y) => updateChaosLine?.Invoke(false);
+            tree.AddComponent(inputFloat_Lamda);
+            var inputFloat_Arg = new InputFloat1("Arg", 1.0f)
+            {
+                Min = 0.0f
+            };
+            inputFloat_Arg.ValueChanged += (x, y) => updateChaosLine?.Invoke(false);
+            tree.AddComponent(inputFloat_Arg);
+            var inputInt_Count = new InputInt1("Count", 20)
+            {
+                Min = 1
+            };
+            inputInt_Count.ValueChanged += (x, y) => updateChaosLine?.Invoke(false);
+            tree.AddComponent(inputInt_Count);
+            var checkBox = new CheckBox("Shown", true);
+            checkBox.ChangeChecked += (x, y) =>
+            {
+                var c = line.Color;
+                c.A = y.NewValue ? byte.MaxValue : default;
+                line.Color = c;
+            };
+            tree.AddComponent(checkBox);
+            updateChaosLine = x =>
+            {
+                if (x) inputFloat_Arg.Value = graph.MaxY;
+                line.Data = CalcChaos(inputInt_Count.Value, inputFloat_Lamda.Value, inputFloat_Init.Value, inputFloat_Arg.Value);
+            };
+        }
         private void InitLogistics()
         {
             var tree = new TreeNode("Logistics")
@@ -151,6 +227,7 @@ namespace LifeGame
             tree_GraphButtons.AddComponent(graphButtonGroup);
             MovingAverages();
             InitLogistics();
+            InitChaos();
             var tree_Parameters = new TreeNode("Parameter")
             {
                 DefaultOpened = true,
@@ -221,6 +298,7 @@ namespace LifeGame
                 tool_Min.Value = (int)graph.MinY;
                 tool_Min.Max = 0;
                 tool_MA_Count.Max = DataBase.Data.Count <= 0 ? 1 : DataBase.Data.Count;
+                updateChaosLine?.Invoke(true);
                 updateLogisticsLine?.Invoke(true);
             }
             else
