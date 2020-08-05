@@ -1,6 +1,7 @@
 # LifeGame
 
 ライフゲームをAltseed2でシミュレートする事が出来ます。
+ビルドは[こちら](HowToBuild/Build.md)を参照。
 
 # 機能
 
