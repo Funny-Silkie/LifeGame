@@ -41,7 +41,7 @@ README.md
 ## ビルド
 
 まず`Altseed2.Core`のビルドを行います。
-Coreのビルドに関しては[こちら](../Altseed2_ToolAuxiliary/Altseed2-csharp/Documents/HowToBuild_Ja.md)を参照。
+Coreのビルドに関しては[こちら](https://github.com/altseed/Altseed2/blob/master/documents/development/HowToBuild_Ja.md)を参照。
 終わったら以下のコマンドを打つことで，`Build`フォルダに一連のファイルが生成されます。
 
 ```
