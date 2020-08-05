@@ -1,0 +1,12 @@
+ 1. シミュレーションモードでI/Oタブを開く
+ 2. LoadBinaryボタンを押す
+ 3. Sample\Ippatugei.lbを開く
+ 4. Runボタンを押して400世代目辺りでStopする
+ 5. Show Graphボタンを押してグラフモードに移る
+ 6. Moving Averageタブを開いてCountが30の時にploy lineボタンを押して移動平均をプロット
+ 7. Chaosタブを開く
+ 8. Shownにチェックを入れて線を表示
+ 9. InitValue = 0.050，lamda = 0.350，Arg = 460.000，Count = 50に設定
+10. Logisticsタブを開く
+11. Shownにチェックを入れて線を表示
+12. r = 0.045，K = 460に設定
