@@ -42,9 +42,11 @@ README.md
 
 まず`Altseed2.Core`のビルドを行います。
 Coreのビルドに関しては[こちら](https://github.com/altseed/Altseed2/blob/master/documents/development/HowToBuild_Ja.md)を参照。
+次に`Altseed2-csharp`のビルドを行います。
+[こちら](https://github.com/altseed/Altseed2-csharp/blob/1941399bc67853f1af851f441b94c7728bff8d39/Documents/HowToBuild_Ja.md)を参照
 終わったら以下のコマンドを打つことで，`Build`フォルダに一連のファイルが生成されます。
 
 ```
-cd <LifeGame.slnのあるディレクトリ>
-dotnet build LifeGame.sln -c Release
+cd <LifeGame.csprojのあるディレクトリ>
+dotnet build LifeGame.csproj -c Release
 ```
